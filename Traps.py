@@ -8,8 +8,8 @@ traps_placed=0
 occ=np.zeros([grid_num+1,grid_num+1])
 nPart=1000
 trapped_time=np.zeros([nPart,1])
-tmax=5000
-surv_mat=np.zeros([nPart,tmax])
+
+
 
 
 while traps_placed<trap_num:
@@ -30,10 +30,10 @@ for part in range(nPart):
     if occ[pos_x,pos_y]==-1:
         trapped=1
         trapped_time[part]=0
-        surv_mat[part,t]=0
+
     else:
         trapped=0
-        surv_mat[part,t]=1
+
     while trapped==0:
         r=np.random.rand()
         if r<=0.5:
@@ -54,24 +54,34 @@ for part in range(nPart):
             trapped=1
             trapped_time[part]=t+1
             
-            surv_mat[part,t]=0
+            
             break
-        else:
-            surv_mat[part,t]=1
-        
-        
         t=t+1
-
+        
+tmax=int(np.max(trapped_time))
 plt.figure()    
 plt.title('Histogram of Trapping Times')
-plt.hist(trapped_time,bins='auto')
 plt.grid()
-plt.figure()
-xs=np.linspace(0,np.size(surv_mat,axis=1),np.size(surv_mat,axis=1))
-ys=np.sum(surv_mat,axis=0)
-plt.scatter(xs,nPart-ys)
-steps=np.linspace(10,1000,tmax)
-s_theoretical_2d=np.pi*steps/np.log(steps)
-phi=(1-c)*s_theoretical_2d
-plt.plot(steps,phi)
+plt.hist(trapped_time,bins='auto',density=True)
+
+
+trapped_time=np.sort(trapped_time,axis=0)
+trapped_mat=[]
+sum1=0
+for i in range(0,tmax+1):
+    for j in range(nPart):
+        if trapped_time[j]==i:
+            sum1=sum1+1
+    trapped_mat.append((nPart-sum1)/nPart)
+
+t1=np.linspace(0,tmax,tmax+1)
+phi=pow((1-c),(np.pi*t1/np.log(8*t1)))
+plt.figure()   
+plt.title("Propability of Survival Phi - Trapping time t")
+plt.ylabel("Propability of Survival Phi")
+plt.xlabel("Trapping time t")
+plt.grid()
+plt.scatter(t1,trapped_mat,label='Simulated Data')  
+plt.plot(t1,phi,label='Theoretical Distribution',color='coral',linewidth=4)
+plt.legend()  
         
